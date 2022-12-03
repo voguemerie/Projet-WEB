@@ -76,10 +76,6 @@ $comment = [];
         
         width: 150px;
         float: right;
-        
-
-        /* position: absolute;
-        left: 95rem; */
     }
     form[action='logout.php'] input:hover{
         filter: brightness(90%);
@@ -89,25 +85,8 @@ $comment = [];
         text-align: center;
         font-size: larger;
         color: grey;
-        /* position absolute; */
-        /* top: 2rem;
-        left:50%; */
 
     }
-    /* #mess_log{
-        font-size: large;
-        color: grey;
-
-        transition-duration: 7s;
-        transition-delay: infinite;
-        
-        transform: translateX(0);
-        transform: translateX(20%);
-        transform: translateX(40%);
-        transform: translateX(60%);
-        transform: translateX(80%);
-        transform: translateX(100%);
-    } */
     
 </style>
 

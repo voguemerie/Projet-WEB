@@ -18,17 +18,17 @@ if(!$_SESSION["log"]){
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="index_burger.js"></script>
+    <title>Mes Musées</title>
+    <!-- <script src="index_burger.js"></script> -->
     
-     <script
-    src="https://code.jquery.com/jquery-3.6.1.min.js"
-    integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ="
-    crossorigin="anonymous"></script>
+     <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <!-- icone burger --> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+     crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-    <script type=text/javascript src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- <script type=text/javascript src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
      <!-- icone utilisateur--> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
 
@@ -37,6 +37,7 @@ if(!$_SESSION["log"]){
 
 
 <body>
+    
     <button id= "user_icon" class="material-symbols-outlined" onclick="openForm()">account_circle</button>
     <form id="user_pop-up" action="logout.php">
         <p>$identifiant</p> <!--Afficheer l'identifiant-->                                 <!--Metre au début du body-->        
@@ -61,13 +62,10 @@ if(!$_SESSION["log"]){
       </a>
       
     </div> 
-    <p name="mess_log" id="mess_log">Bonjour, <!--<?php $_GET["login"] ?> --> vous êtes connecté</p>
+    <p name="mess_log" id="mess_log">Bonjour, <!--<?php $_GET["login"] ?> --> vous êtes connecté</p>   
 
-
-   
-
-    <div id="map" style= "width:100%; height:100%; z-index: 1;"></div>
-
+    <div id="map" style="width: 500px; height: 400px;" ></div>
+    <!-- changement de taille pour map à faire ici -->
 
     <?php 
         
@@ -76,8 +74,8 @@ if(!$_SESSION["log"]){
         // }
         
     ?>
-    <textarea name="comment_area" id="comment_area" cols="30" rows="10" placeholder="taper votre commentaire ici"></textarea>
-    <button id="post_comment">commenter</button>
+    <textarea class="commentaire" name="comment_area" id="comment_area" cols="30" rows="10" placeholder="taper votre commentaire ici"></textarea>
+    <button class="commentaire" id="post_comment">commenter</button>
     
     
 </body>
@@ -100,12 +98,13 @@ if(!$_SESSION["log"]){
 
 	var popup = L.popup();
 
-    function onMapClick(e) {
+    function onMapClick(e) {//ne marche pas; ilfaut ajouter un truc après il me semble
     popup
         .setLatLng(e.latlng)
         .setContent("You clicked the map at " + e.latlng.toString())
         .openOn(map);
     }
+    
 
     var Icon = L.icon({ iconUrl: 'icone.png',
     iconSize:     [20, 25], // size of the icon
@@ -125,7 +124,7 @@ if(!$_SESSION["log"]){
                 lon=data['records'][i]['fields']['geolocalisation'][1];
                 console.log(lat,lon);
                 var url=data['records'][i]['fields']['url'];
-                var S ="site officiel";
+                var S="site officiel";
                 console.log(url)
                 L.marker([lat,lon],{icon: Icon}).addTo(map).bindPopup('<b>' + data['records'][i]['fields']["nom_officiel_du_musee"]+'<br>' + S.link(data['records'][i]['fields']['url'])).openPopup();
             }
@@ -150,8 +149,13 @@ if(!$_SESSION["log"]){
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap'); /*Font Roboto*/
     body{
-        font-family: 'Roboto', sans-serif;
-        background-color: rgb(149, 138, 180);
+        font-family: 'Lucida Bright', sans-serif;
+        /* background-color: rgb(149, 138, 180); */
+        background-image: url("fond_form.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        overflow: hidden;
+        /* overflow pour cacher la partie où y'a pas de background, bg-size pour la taille du bg iici recouvre tout l'écran  */
         
     }
     html, body{
@@ -177,6 +181,7 @@ if(!$_SESSION["log"]){
         text-align: center;
         font-size: larger;
         color: white;
+        font-size: 25px;
     }
 
     #user_icon{
@@ -199,6 +204,7 @@ if(!$_SESSION["log"]){
 
     #user_pop-up{
         z-index: 2;
+        
         position: absolute;
         top: 50px;
         right: 20px;
@@ -225,66 +231,71 @@ if(!$_SESSION["log"]){
 
     }
 
-        /* Sidenav menu */
-.sidenav {
-  height: 100%;
-  width: 250px;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  left: -250px;
-  background-color: brown;
-  padding-top: 60px;
-  transition: left 0.5s ease;
-}
+    /* Sidenav menu */
+    .sidenav {
+        height: 100%;
+        width: 250px;
+        position: fixed;
+        z-index: 2;
+        top: 0;
+        left: -250px;
+        background-color: brown;
+        padding-top: 60px;
+        transition: left 0.5s ease;
+    }
 
-/* Sidenav menu links */
-.sidenav a {
-  padding: 8px 8px 8px 32px;
-  text-decoration: none;
-  font-size: 25px;
-  color: white;
-  display: block;
-  transition: 0.3s;
-}
+    /* Sidenav menu links */
+    .sidenav a {
+        padding: 8px 8px 8px 32px;
+        text-decoration: none;
+        font-size: 25px;
+        color: white;
+        display: block;
+        transition: 0.3s;
+    }
 
-.sidenav a:hover {
-  color: #111;
-}
+    .sidenav a:hover {
+        color: #111;
+    }
 
-.sidenav ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
+    .sidenav ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
 
-/* Active class */
-.sidenav.active {
-  left: 0;
-}
+    /* Active class */
+    .sidenav.active {
+        left: 0;
+    }
 
-/* Close btn */
-.sidenav .close {
-  position: absolute;
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-}
-#openBtn{
-  width: fit-content;
-}
+    /* Close btn */
+    .sidenav .close {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+    }
+    #openBtn{
+        width: fit-content;
+    }
 
-#icon_burger{
-  font-variation-settings:
-  'FILL' 200,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 48;
-  font-size: 40px;
-  color: black;
-  background-color: inherit;
-}
+    #icon_burger{
+        font-variation-settings:
+        'FILL' 200,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 48;
+        font-size: 40px;
+        color: black;
+        background-color: inherit;
+    }
 
+    #map{
+        display: absolute;
+        z-index: 1;
+        
+    }
 
 </style>
 

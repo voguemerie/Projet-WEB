@@ -30,7 +30,7 @@ if(!$_SESSION["log"]){
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
     <!-- <script type=text/javascript src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
      <!-- icone utilisateur--> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
-
+    <!-- icone serach --> <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
 
 </head>
@@ -38,15 +38,15 @@ if(!$_SESSION["log"]){
 
 <body>
     
-    <button id= "user_icon" class="material-symbols-outlined" onclick="openForm()">account_circle</button>
+    <!-- <button id= "user_icon" class="material-symbols-outlined" onclick="openForm()">account_circle</button>
     <form id="user_pop-up" action="logout.php">
-        <p>$identifiant</p> <!--Afficheer l'identifiant-->                                 <!--Metre au début du body-->        
-        <input type="submit" value="se déconnecter"><!-- se déconnecte via logout-->
-        <input type="button" onclick="closeForm()" value="Fermer"> <!-- Ferme le pop-up-->
-    </form>
+        <p>$identifiant</p>                                         
+        <input type="submit" value="se déconnecter">
+        <input type="button" onclick="closeForm()" value="Fermer"> 
+    </form> -->
 
     <!-- Menu Burger -->
-    <div id="mySidenav" class="sidenav">
+    <!-- <div id="mySidenav" class="sidenav">
         <a id="closeBtn" href="#" class="close">×</a>
         <ul>
           <li><a href="#">Accès commentaires</a></li>
@@ -61,10 +61,26 @@ if(!$_SESSION["log"]){
         <span id="icon_burger" class="material-symbols-outlined">menu</span>        
       </a>
       
-    </div> 
+    </div>  -->
+
+    <header>
+        <nav>
+            <ul id="nav-bar">
+                <li><a href="">Accès commentaires</a></li>
+                <li><a href="">Les musées</a></li>
+                <li><a href="">Nous contacter</a></li>
+                <input type="search" name="search-bar" id="search-bar" placeholder="Search...">
+                <span id="search-icon" class="material-symbols-outlined">search</span>
+                <li><a href="login.php">Connexion</a></li>
+                
+            </ul>
+            
+        </nav>
+    </header>
+
     <p name="mess_log" id="mess_log">Bonjour, <!--<?php $_GET["login"] ?> --> vous êtes connecté</p>   
 
-    <div id="map" style="width: 500px; height: 400px;" ></div>
+    <div id="map" style="width: 1000px; height: 800px;" ></div>
     <!-- changement de taille pour map à faire ici -->
 
     <?php 
@@ -89,7 +105,7 @@ if(!$_SESSION["log"]){
             });
         });
 
-	const map = L.map('map').setView([48.866667, 2.333333],12);
+	const map = L.map('map').setView([48.863753, 2.336715],12);
 
 	const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
 		maxZoom: 19,
@@ -124,9 +140,10 @@ if(!$_SESSION["log"]){
                 lon=data['records'][i]['fields']['geolocalisation'][1];
                 console.log(lat,lon);
                 var url=data['records'][i]['fields']['url'];
-                var S="site officiel";
+                var S="site officiel du musée";
+                
                 console.log(url)
-                L.marker([lat,lon],{icon: Icon}).addTo(map).bindPopup('<b>' + data['records'][i]['fields']["nom_officiel_du_musee"]+'<br>' + S.link(data['records'][i]['fields']['url'])).openPopup();
+                L.marker([lat,lon],{icon: Icon}).addTo(map).bindPopup('<b>' + data['records'][i]['fields']["nom_officiel_du_musee"]+'<br>' +S.link("https://"+data['records'][i]['fields']['url'])).openPopup();
             }
         }
     });
@@ -151,16 +168,81 @@ if(!$_SESSION["log"]){
     body{
         font-family: 'Lucida Bright', sans-serif;
         /* background-color: rgb(149, 138, 180); */
-        background-image: url("fond_form.jpg");
-        background-repeat: no-repeat;
-        background-size: cover;
+        /* background-image: url("fond_form.jpg"); */
+        /* background-repeat: no-repeat;
+        background-size: cover; */
         overflow: hidden;
+        
         /* overflow pour cacher la partie où y'a pas de background, bg-size pour la taille du bg iici recouvre tout l'écran  */
         
     }
     html, body{
         height: 100%;
+        margin: 0 0 0 0;
+        padding: 0 0 0 0;
     }
+
+    nav{
+        background-color: inherit;
+        filter: brightness(50%);
+        margin: 0 0 0 0;
+        padding: 10px 0 0 0;
+        background-color: inherit;
+    }
+
+    #nav-bar {
+        display: flex;
+        left: 5%;
+        list-style: none;
+        margin: 0 0;
+        box-sizing: border-box;
+    }
+    #nav-bar li{
+        font-size: 16px;
+        width: max-content;
+        text-align: center;
+        margin-left: 25px;
+        float: left;
+    }
+    #nav-bar li a{
+        text-decoration: none;
+        color: inherit;
+    }
+    #nav-bar li:hover{
+        color: black;        
+        filter: brightness(90%);
+    }
+
+    #search-bar{
+        
+        display: block;
+        margin-left: 40%;
+        padding-left: 5px;
+        border: thin;
+        
+        border-radius: 6px;
+        border-color: grey;
+        font-size: 16px;
+        
+        background-color: transparent;
+        box-shadow: none;  
+              
+    }
+    #search-bar:focus{
+        color: black;
+        border: thin;
+    }
+    
+    #search-icon{
+        font-size: 20px;
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 48
+    }
+
+    
 
     form[action='logout.php'] input{
         border: 3px solid black;
@@ -180,7 +262,7 @@ if(!$_SESSION["log"]){
     #mess_log{
         text-align: center;
         font-size: larger;
-        color: white;
+        color: black;
         font-size: 25px;
     }
 
@@ -282,7 +364,7 @@ if(!$_SESSION["log"]){
 
     #icon_burger{
         font-variation-settings:
-        'FILL' 200,
+        'FILL' 200
         'wght' 400,
         'GRAD' 0,
         'opsz' 48;
@@ -292,9 +374,15 @@ if(!$_SESSION["log"]){
     }
 
     #map{
-        display: absolute;
-        z-index: 1;
-        
+        float: left;
+        left: 12%;
+        z-index: 0;
+               
+    }
+
+    .commentaire{
+        float: right;
+        z-index: 2;        
     }
 
 </style>

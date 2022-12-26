@@ -1,7 +1,6 @@
 <?php 
 $pdo = new PDO("mysql:host=localhost;dbname=devweb","root",""); //pdo : connexion bd 
 $sql = "select * from user where login = \"".$_GET["login"]."\"";
-$err_login ="mess_err";
 
 foreach($pdo->query($sql)  as $row){ // requête sql
     if($_GET["password"]===$row["password"]){

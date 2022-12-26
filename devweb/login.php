@@ -25,7 +25,7 @@
 					<input type="text" name="txt" placeholder="User name" required="">
 					<input type="email" name="email" placeholder="Email" required="">
 					<input type="password" name="pswd" placeholder="Password" required="">
-					<input id ="submit" type="submit" value="Logon"><br>
+					<input id ="submit" type="submit" value="Sign up"><br>
 				</form>
 			</div>
 			<div class="login">
@@ -33,7 +33,9 @@
 					<label for="chk" aria-hidden="true">Login</label>
 					<input id="login" type="txt" name="login" placeholder="Identifiant" required="">
 					<input type="password" name="password" placeholder="Password" required="">
+					<a href=""><p id="forgotPass" >Forgot your password ?</p></a>
 					<input id ="submit" type="submit" value="Login"><br>
+					
 				</form>
 			</div>
 	</div>
@@ -52,7 +54,7 @@ body{
     background-size: cover;
 }
 .main{
-	width: 350px;
+	width: 500px;
 	height: 500px;
 	background: red;
 	overflow: hidden;
@@ -98,7 +100,7 @@ input{
 	justify-content: center;
 	display: block;
 	color: #fff;
-	background: #573b8a;
+	background: #dda445;
 	font-size: 1em;
 	font-weight: bold;
 	margin-top: 20px;
@@ -120,10 +122,21 @@ button:hover{
 	transition: .8s ease-in-out;
 }
 .login label{
-	color: #573b8a;
+	color: #dda445;
 	transform: scale(.6);
 }
-
+#forgotPass{
+	font-size: 13px;
+	text-align: right;
+	padding-right: 18%;
+	
+}
+a{
+	text-decoration: none;
+}
+a:visited{
+	color:black;
+}
 #chk:checked ~ .login{
 	transform: translateY(-500px);
 }

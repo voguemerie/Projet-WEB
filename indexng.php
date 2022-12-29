@@ -78,6 +78,7 @@ if(!$_SESSION["log"]){
             
         </nav>
     </header>
+    <!-- <a href="https://www.prevision-meteo.ch/meteo/localite/paris"><img src="https://www.prevision-meteo.ch/uploads/widget/paris_0.png" width="650" height="250" /></a> -->
 
     <p name="mess_log" id="mess_log">Bonjour, <!--<?php $_GET["login"] ?> --> vous êtes connecté</p>   
 
@@ -96,13 +97,14 @@ if(!$_SESSION["log"]){
         <option value="TRANSIT">Transports en commun</option>
       </select>
     </div>
-    <p id="zone_meteo">toto</p>
 
     <div id="pac-container">
         <input id="pac-input" type="text" placeholder="Entrer l'adresse" />
+        <button id="posi" img src="loc.png">position</button>
       </div>
     <select id="list1"></select>
-      <button id= entrer>Valider</button>
+      <button id= "entrer">Valider</button>
+      <button id= "reset">Annuler</button>
     <textarea class="commentaire" name="comment_area" id="comment_area" cols="30" rows="10" placeholder="taper votre commentaire ici"></textarea>
     <button class="commentaire" id="post_comment">commenter</button>
     <div id="steps" style="display: none;"></div>
@@ -120,15 +122,13 @@ if(!$_SESSION["log"]){
             });
         });
         // function initMap() {
-    const directionsRenderer = new google.maps.DirectionsRenderer();
-    const directionsService = new google.maps.DirectionsService();
+    var directionsRenderer = new google.maps.DirectionsRenderer();
+    var directionsService = new google.maps.DirectionsService();
     const map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 48.863753, lng: 2.336715},
     zoom: 12,
   });
-directionsRenderer.setPanel(document.getElementById("sidebar"));
-directionsRenderer.setMap(map);
-  calculateAndDisplayRoute(directionsService, directionsRenderer);
+
   document.getElementById("mode").addEventListener("change", () => {
     calculateAndDisplayRoute(directionsService, directionsRenderer);
   });
@@ -166,12 +166,16 @@ directionsRenderer.setMap(map);
                 var select= document.getElementById ("list1");
                         var newOption = new Option (data['records'][i]['fields']["nom_officiel_du_musee"]);
                         select.options.add (newOption);
+                        console.log(newOption);
                         // add click event
                         
                 (function (marker, i) {
                 google.maps.event.addListener(marker, 'click', function () {
                     infowindow = new google.maps.InfoWindow({
-                    content: data['records'][i]['fields']["nom_officiel_du_musee"]+'<br>'+S.link("https://"+data['records'][i]['fields']['url'])+'<br>'
+                    content:data['records'][i]['fields']["nom_officiel_du_musee"]+'<br>'+S.link("https://"+data['records'][i]['fields']['url'])
+                    // +'<div>'+
+                    // '<button id="trajet">Itinéraire<button>'+
+                    // '</div>'
                     });
                     
                     infowindow.open(map, marker);
@@ -208,7 +212,7 @@ directionsRenderer.setMap(map);
 
 
 
-    const input = document.getElementById("pac-input");
+    var input = document.getElementById("pac-input");
     const options = {
     fields: ["formatted_address", "geometry", "name"],
     bounds : { // bounds of NSW
@@ -223,10 +227,39 @@ directionsRenderer.setMap(map);
     };
     const autocomplete = new google.maps.places.Autocomplete(input, options);
     autocomplete.bindTo("pac-input", map);
-    const onChangeHandler = function () {
+    function onChangeHandler () {
     calculateAndDisplayRoute(directionsService, directionsRenderer);
   };
   
+  const reset=document.getElementById("reset")
+  reset.addEventListener("click",supprimer);
+  function supprimer(){
+    directionsRenderer.setMap(null);
+    // directionsRenderer.setDirections(null);
+    console.log(directionsRenderer)
+    directionsRenderer.setPanel(null)
+
+    
+    
+  }
+  function getAdresse(){
+    navigator.geolocation.getCurrentPosition(function(position) {
+    var lati = position.coords.latitude;
+    var lng = position.coords.longitude;
+    const geocoder = new google.maps.Geocoder();
+    var pos=position.coords.latitude+","+position.coords.longitude
+    input.value=pos;
+  })
+  }
+//   var lieu= document.getElementById("trajet")
+//   lieu.addEventListener("click",trajet)
+  
+//   function trajet(){
+//     var options = list1.querySelector(marker.title);
+//     options.focus();
+//   }
+  var po=document.getElementById("posi");
+  po.addEventListener("click",getAdresse);
 
     function calculateAndDisplayRoute(directionsService, directionsRenderer) {
         const start = document.getElementById("pac-input").value;
@@ -242,10 +275,15 @@ directionsRenderer.setMap(map);
             .then((response) => {
             directionsRenderer.setDirections(response);
             })
-            // .catch((e) => window.alert("Directions request failed due to " + status));
+            .catch((e) => window.alert("Directions request failed due to " + status));
         }
-        document.getElementById("entrer").addEventListener("click",onChangeHandler);
-// window.initMap = initMap;
+        document.getElementById("entrer").addEventListener("click",valider);
+        function valider(){
+            directionsRenderer.setPanel(document.getElementById("sidebar"));
+            directionsRenderer.setMap(map);
+            onChangeHandler();
+        }
+// window.initMap = in6itMap;
 </script>
 
 <style>

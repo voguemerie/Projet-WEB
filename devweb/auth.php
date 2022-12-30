@@ -16,7 +16,7 @@ foreach($pdo->query($sql)  as $row){ // requête sql
     
     echo $row["login"]; 
 
-header("Location:index.php");
+header("Location:indexng.php");
 exit;
 
 

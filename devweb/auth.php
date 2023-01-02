@@ -20,6 +20,4 @@ foreach($pdo->query($sql)  as $row){ // requête sql
 
 header("Location:index.php");
 exit;
-
-
 ?>

@@ -1,93 +1,319 @@
-<?php 
+<?php
+    header("Access-Control-Allow-Origin: *");
+    session_start();
+    // require_once("inscription.php");
+    $_SESSION["log"] ??= false;
 
-session_start();
-$_SESSION["log"] ??= false;
 
-if(!$_SESSION["log"]){
-    header('Location:login.php');  //redirection sur le login lorsque l'on arrive sur la page
-    exit;
-}
+    if (!$_SESSION["log"]) {
+        header('Location:login.php');  //redirection sur le login lorsque l'on arrive sur la page
 
-$pdo = new PDO("mysql:host=localhost;dbname=devweb","root",""); //pdo : connexion bd 
-$sql = "select * from comment ORDER BY date";
-$comment = [];
-
+        exit;
+    }
 ?>
-
-
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script
-    src="https://code.jquery.com/jquery-3.6.1.min.js"
-    integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ="
-    crossorigin="anonymous"></script>
-    <title>Document</title>
-</head>
-<body>
-    <form action="logout.php" >
-        <input type="submit" value="Se deconnecter">
-    </form>
-    <p name="mess_log" id="mess_log">Bonjour vous êtes connecté</p>
+    <title>Mes Musées</title>
+    <!-- <script src="index_burger.js"></script> -->
+    <link rel="stylesheet" href="style_indexng.css">
+    <script src="meteo.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     
-    <?php 
-        
-        foreach($pdo->query($sql)  as $row){ // requête sql
-            echo "<div class='comment'>".$row['content']." </div>";
-        }
-        
-    ?>
-    <textarea name="comment_area" id="comment_area" cols="30" rows="10" placeholder="taper votre commentaire ici"></textarea>
-    <button id="post_comment">commenter</button>
-    <script>
-        $(document).ready(function(){
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAjGU6qqUqh4U4BOgbd2yIgyKHTkNw4YTc&libraries=places"></script>
+    <script src="http://openlayers.org/api/OpenLayers.js"></script>
+
+    <!-- icone search -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    
+
+</head>
+
+<body>
+    <header>
+        <nav>
+            <ul id="nav-bar">
+                <li><a href="#content_com">Accès commentaires</a></li>
+                <li><a href="">Les musées</a></li>
+                <li><a href="contact.php">Nous contacter</a></li>
+                <div id="floating-panel">
+                    <b>Mode de transport: </b>
+                    <select id="mode">
+                        <option value="DRIVING">Voiture</option>
+                        <option value="WALKING">Marche</option>
+                        <option value="BICYCLING">Vélo</option>
+                        <option value="TRANSIT">Transports en commun</option>
+                    </select>
+                </div>
+                <input type="text" id="search-bar" placeholder="Rechercher un musée" list="musee">
+                <datalist id=musee></datalist>
+                <button id="chercher" class="material-symbols-outlined">search</button>
+                <li><a href="login.php">Déconnexion</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <p name="mess_log" id="mess_log">Bonjour, bienvenue sur la carte des musées de Paris !</p>
+    <!----------------------- METEO ------------------------>
+    <div class="weatherCard">
+        <div class="currentTemp">
+            <span class="temp" id="zone_meteo">°C</span>
+            <span class="location">Météo de <br> Paris</span>
+        </div>
+    </div>
+    <!------------------------------------------------------>
+    <div class="itineraire">
+        <div id="pac-container">
+            <input id="pac-input" type="text" placeholder="Adresse de départ" />
+            <button id="posi" class="material-symbols-outlined">pin_drop</button>
+        </div>
+        <select id="list1"></select>
+        <button id=entrer>Valider</button>
+        <button id= "reset">Annuler</button>
+    </div>
+    <div id="container">
+        <div id="map" style="width: 1000px; height: 600px;"></div>
+        <div id="sidebar"></div>
+    </div>
+
+    <form action="" method="POST">
+        <table>
+            <tr>
+                <td>
+                    <textarea name="content" id="content_com" cols="30" rows="10" placeholder="Rédigez votre commentaire"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <input id="post_comment" type="submit" name="Commenter" value="commenter">
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <div id="steps" style="display: none;"></div>
+
+
+</body>
+
+<script>
+  $(document).ready(function(){
             $("#post_comment").click(function(){
                 var ajaxURL = "addcomment.php";
                 var data = {'content':$("#comment_area").val(), 'user':1, 'date':Date.now()}
                 $.post(ajaxURL, data, function(res){});
             });
         });
+        // function initMap() {
+    var directionsRenderer = new google.maps.DirectionsRenderer();
+    var directionsService = new google.maps.DirectionsService();
+    var map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 48.863753, lng: 2.336715},
+    zoom: 13,
+  });
+
+  document.getElementById("mode").addEventListener("change", () => {
+    calculateAndDisplayRoute(directionsService, directionsRenderer);
+  });
+
+// }
+        
+  const icon = {
+    url: 'icone.png', // url
+    scaledSize: new google.maps.Size(20, 25), // scaled size
+    origin: new google.maps.Point(0,0), // origin
+    anchor: new google.maps.Point(0, 0) // anchor
+};
 
 
-    </script>
-</body>
+var markers=[];
+var search=document.getElementById ("chercher");
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap'); /*Font Roboto*/
-    body{
-        font-family: 'Roboto', sans-serif;
-        background-image: url("gradienta-G084bO4wGDA-unsplash.jpg");
-    }
 
-    form[action='logout.php']{
+
+
+    $.ajax({
+        method: 'GET',
+        url: "https://data.culture.gouv.fr/api/records/1.0/search/?dataset=liste-et-localisation-des-musees-de-france&q=&rows=131&facet=region_administrative&facet=departement&refine.region_administrative=%C3%8Ele-de-France&refine.departement=Paris",
+        success : function(data){
+            JSON.stringify(data)
+            
+            var lat,lon;
+            var select= document.getElementById ("list1");
+            var select2= document.getElementById ("musee");
+            var str='';
+            for (let i = 0; i < data['records'].length; i++) {
+                lat=data['records'][i]['fields']['geolocalisation'][0];
+                lon=data['records'][i]['fields']['geolocalisation'][1];
+                var url=data['records'][i]['fields']['url'];
+                var S="site officiel du musée";
+                var currentInfoWindow = null;
+                var marker = new google.maps.Marker({
+                position: {lat: lat, lng: lon},
+                map: map,
+                title: data['records'][i]['fields']["nom_officiel_du_musee"],
+                icon:icon
+                });
+                markers.push(marker);
+                
+              
+                
+                        var newOption = new Option (data['records'][i]['fields']["nom_officiel_du_musee"]);
+                        select.options.add (newOption);
+                        
+                        str += "<option>"+newOption.value+"<option/>"; // Storing options in variable
+                        var my_list=document.getElementById("musee");
+                        my_list.innerHTML = str;
+                    // console.log(markers);
+                    console.log(markers[0]["title"]);
+                        
+                (function (marker, i) {
+                google.maps.event.addListener(marker, 'click', function () {
+                    var infowindow = new google.maps.InfoWindow({
+                    content:data['records'][i]['fields']["nom_officiel_du_musee"]+'<br>'+S.link("https://"+data['records'][i]['fields']['url'])
+                    +'<div>'+
+                    '<button id="trajet">Itinéraire<button>'+
+                    '</div>'
+                    });
+                    infowindow.addListener('closeclick', function(){
+                    map.panTo(new google.maps.LatLng(48.863753,2.336715))
+                    map.setZoom(13);
+                    });
+                    // $('#trajet').addEventListener('#click', function(){
+
+                    // });
+                    
+                    infowindow.open(map, marker);
+                    if (currentInfoWindow != null) {
+                    currentInfoWindow.close();
+                    }
+                    infowindow.open(map, marker);
+                    currentInfoWindow = infowindow;
+                    map.panTo(new google.maps.LatLng(marker.position));
+                    map.setZoom(18);
+                    
+                                    });
+                    
+                })(marker, i);
         
     }
-    form[action='logout.php'] input{
-        border: 3px solid black;
-        margin-bottom: 1rem;
-        padding: 8px 16px;
-        border-radius: 0.5rem;
-        color: black;
-        
-        width: 150px;
-        float: right;
-    }
-    form[action='logout.php'] input:hover{
-        filter: brightness(90%);
+                        
+                }        
+    });
+
+
+function trouver(){
+    var recherche=document.getElementById ("search-bar").value;
+    for (j=0;j<markers.length;++j){
+        if(markers[j]["title"]==recherche){
+            map.panTo(new google.maps.LatLng(markers[j]["position"]));
+            map.setZoom(18);
+            console.log(j)
+        }
     }
 
-    #mess_log{
-        text-align: center;
-        font-size: larger;
-        color: grey;
-
-    }
+};
+butitineraire=document.getElementById("trajet");
+function way(){
+    var center=getCenter();
     
-</style>
+}
+// butitineraire.addEventListener("click",way);
+
+search.addEventListener("click",trouver);
+
+    $user_pop = document.getElementById("user_pop-up");
+    function openForm() {                                               //Fonction pour faire apparaitre le formulaire user_pop-up  
+        document.getElementById("user_pop-up").style.display= "block";
+        document.getElementById("user_icon").style.display= "none";
+
+    }
+    function closeForm() {                                              //Fonction pour faire disparaitre le formulaire user_pop-up
+        $user_pop.style.display= "none";
+        document.getElementById("user_icon").style.display= "block";
+    }
+
+
+    var input = document.getElementById("pac-input");
+    const options = {
+    fields: ["formatted_address", "geometry", "name"],
+    bounds : { // bounds of NSW
+        "south": -54.5247541978,
+        "west": 2.05338918702,
+        "north": 9.56001631027,
+        "east": 51.1485061713
+        },
+        componentRestrictions: {
+        country: 'fr'
+        },
+    };
+    const autocomplete = new google.maps.places.Autocomplete(input, options);
+    autocomplete.bindTo("pac-input", map);
+    function onChangeHandler () {
+    calculateAndDisplayRoute(directionsService, directionsRenderer);
+  };
+  
+  const reset=document.getElementById("reset")
+  reset.addEventListener("click",supprimer);
+  function supprimer(){
+    directionsRenderer.setMap(null);
+    // directionsRenderer.setDirections(null);
+    console.log(directionsRenderer)
+    directionsRenderer.setPanel(null)
+
+    
+    
+  }
+  function getAdresse(){
+    navigator.geolocation.getCurrentPosition(function(position) {
+    var lati = position.coords.latitude;
+    var lng = position.coords.longitude;
+    const geocoder = new google.maps.Geocoder();
+    var pos=position.coords.latitude+","+position.coords.longitude
+    input.value=pos;
+  })
+  }
+
+  var po=document.getElementById("posi");
+  po.addEventListener("click",getAdresse);
+
+    function calculateAndDisplayRoute(directionsService, directionsRenderer) {
+        const start = document.getElementById("pac-input").value;
+        const end = document.getElementById("list1").value;
+        const selectedMode = document.getElementById("mode").value;
+
+        directionsService
+            .route({
+            origin: start,
+            destination: end,
+            travelMode: google.maps.TravelMode[selectedMode],
+            })
+            .then((response) => {
+            directionsRenderer.setDirections(response);
+            })
+            .catch((e) => window.alert("Directions request failed due to " + status));
+        }
+        document.getElementById("entrer").addEventListener("click",valider);
+        function valider(){
+            directionsRenderer.setPanel(document.getElementById("sidebar"));
+            directionsRenderer.setMap(map);
+            onChangeHandler();
+        }
+    //////////////////////////////////// METEO ////////////////////////////////////////////////////////////////////
+    $.ajax({
+        type: "GET",
+        url: "https://api.openweathermap.org/data/2.5/weather?lat=48.853&lon=2.349&appid=cc496e03e4215064006f974df45c603a",
+        success: function(retour) {
+            console.log(retour.main.temp - 273.15);
+            $("#zone_meteo").html(Math.floor(retour.main.temp - 273.15));
+        }
+    });
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+</script>
 
 </html>

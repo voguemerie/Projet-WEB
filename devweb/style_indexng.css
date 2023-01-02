@@ -61,9 +61,12 @@ nav {
   border: thin;
 }
 
-#search-icon {
+#chercher {
   font-size: 20px;
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+  border: none;
+  background-color: transparent;
+  height: fit-content;
 }
 .list {
   float: left;

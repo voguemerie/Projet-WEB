@@ -1,5 +1,6 @@
 <?php
 require_once("inscription.php");
+require_once("auth.php");
 ?>
 
 <!DOCTYPE html>
@@ -26,24 +27,35 @@ require_once("inscription.php");
 				<input type="email" name="email" placeholder="Email" required="">
 				<input type="password" name="password" placeholder="Password" required="">
 				<input class="submit" type="submit" name="signup" value="Sign up"><br>
+				<?php
+				if (isset($_POST['signup'])) {
+					insertUser($_POST);
+				}
+				?>
 			</form>
 		</div>
 
-		<?php
-		if (isset($_POST['signup'])) {
-			//var_dump($_POST);
-			insertUser($_POST);
-		}
-		?>
-
 		<div class="login">
-			<form method="POST" action="auth.php">
+			<form method="POST">
 				<label for="chk" aria-hidden="true">Login</label>
 				<input id="login" type="txt" name="login" placeholder="Identifiant" required="">
 				<input type="password" name="password" placeholder="Password" required="">
-				<p id="forgotPass"><a href="forgot.php" >Forgot your password ?</a></p>
-				<input class="submit" type="submit" value="Login"><br>
+				<p id="forgotPass"><a href="forgot.php">Forgot your password ?</a></p>
+				<input class="submit" type="submit" name="connexion" value="Login"><br>
 
+				<?php
+				if (isset($_POST['connexion'])) {
+					$login = $_POST['login'];
+					$password = $_POST['password'];
+					$unUser= selectUser($login, $password);
+					if($unUser!= null){
+						header('LOCATION: index.php');
+					}else{
+						echo "<p style='text-align:center; color:red;'>mot de passe incorrect</p>";
+					}
+					
+				}
+				?>
 			</form>
 		</div>
 	</main>

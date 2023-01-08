@@ -1,6 +1,5 @@
 <?php 
     require_once("inscription.php");
-
 ?>
 
 <!DOCTYPE html>
